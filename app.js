@@ -815,7 +815,7 @@ function updateGreeting() {
     else greeting = 'Boa noite';
 
     const welcomeH2 = document.querySelector('.welcome-text h2');
-    if (welcomeH2) welcomeH2.textContent = greeting + ', Pablo 👋';
+    if (welcomeH2) welcomeH2.textContent = greeting + ', Dr. John 👋';
 }
 
 
