@@ -2042,17 +2042,194 @@ body {
 }
 
 /* ── Responsive ── */
+
+/* Notebooks grandes / telas menores que full HD */
+@media (max-width: 1440px) {
+    .sidebar {
+        width: 240px;
+    }
+
+    .main-content {
+        margin-left: 240px;
+    }
+
+    .page-content {
+        padding: 24px;
+    }
+
+    .kpi-grid {
+        gap: 16px;
+    }
+
+    .kpi-card {
+        padding: 18px;
+        gap: 12px;
+    }
+
+    .kpi-value {
+        font-size: 1.65rem;
+    }
+
+    .kpi-trend {
+        font-size: 0.68rem;
+    }
+
+    .charts-row {
+        gap: 16px;
+    }
+
+    .chart-card {
+        padding: 20px;
+    }
+
+    .chart-body {
+        height: 240px;
+    }
+
+    .content-row {
+        gap: 16px;
+    }
+
+    .content-card {
+        padding: 20px;
+    }
+
+    .welcome-text h2 {
+        font-size: 1.4rem;
+    }
+
+    .top-bar {
+        padding: 0 24px;
+    }
+
+    .search-bar {
+        min-width: 240px;
+    }
+
+    .data-table thead th {
+        padding: 10px 12px;
+        font-size: 0.7rem;
+    }
+
+    .data-table tbody td {
+        padding: 12px;
+        font-size: 0.82rem;
+    }
+
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .researchers-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+    }
+
+    .researcher-card {
+        padding: 18px 12px;
+    }
+
+    .researcher-card .rc-name {
+        font-size: 0.82rem;
+    }
+
+    .researcher-card .rc-title {
+        font-size: 0.7rem;
+    }
+
+    .pub-stats-row {
+        gap: 16px;
+    }
+
+    .pub-stat-card {
+        padding: 18px;
+    }
+
+    .pub-stat-value {
+        font-size: 1.65rem;
+    }
+}
+
+/* Notebooks menores (13" / 14") */
 @media (max-width: 1280px) {
+    .sidebar {
+        width: 220px;
+    }
+
+    .main-content {
+        margin-left: 220px;
+    }
+
+    .page-content {
+        padding: 20px;
+    }
+
     .kpi-grid {
         grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
     }
+
+    .kpi-card {
+        padding: 16px;
+    }
+
+    .kpi-value {
+        font-size: 1.5rem;
+    }
+
+    .charts-row {
+        grid-template-columns: 1.4fr 1fr;
+        gap: 14px;
+    }
+
+    .chart-body {
+        height: 220px;
+    }
+
+    .content-row {
+        grid-template-columns: 1.4fr 1fr;
+        gap: 14px;
+    }
+
     .researchers-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .welcome-text h2 {
+        font-size: 1.3rem;
+    }
+
+    .search-bar {
+        min-width: 200px;
+    }
+
+    .project-title-cell {
+        max-width: 220px;
+    }
+
+    .kanban-card-title {
+        font-size: 0.82rem;
+    }
+
+    .pub-stats-row {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+    }
+
+    .pub-stat-value {
+        font-size: 1.4rem;
+    }
+
+    .reports-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
+/* Tablets / sidebar collapses */
 @media (max-width: 1024px) {
     .sidebar {
+        width: 272px;
         transform: translateX(-100%);
     }
 
@@ -2077,17 +2254,22 @@ body {
     }
 
     .search-bar {
-        min-width: 200px;
+        min-width: 180px;
     }
 
     .pub-stats-row {
         grid-template-columns: repeat(2, 1fr);
     }
+
+    .researchers-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
+/* Mobile */
 @media (max-width: 768px) {
     .page-content {
-        padding: 20px;
+        padding: 16px;
     }
 
     .kpi-grid {
@@ -2142,5 +2324,13 @@ body {
 
     .pub-stats-row {
         grid-template-columns: 1fr;
+    }
+
+    .kpi-value {
+        font-size: 1.4rem;
+    }
+
+    .chart-body {
+        height: 200px;
     }
 }
