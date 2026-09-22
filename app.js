@@ -709,7 +709,7 @@ function renderKanban() {
         const statusProjects = filteredProjects.filter(function(p) { return p.status === status; });
         let cardsHtml = statusProjects.map(function(p) {
             const deadlineFormatted = new Date(p.deadline).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
-            return '<div class="kanban-card">' +
+            return '<div class="kanban-card" data-id="' + p.id + '">' +
                 '<div class="kanban-card-title">' + p.title + '</div>' +
                 '<div class="kanban-card-meta">' +
                 '<span>' + p.subtitle + '</span>' +
@@ -738,9 +738,13 @@ function renderKanban() {
             '</div>' +
             '<span class="kanban-column-count">' + statusProjects.length + '</span>' +
             '</div>' +
+            '<div class="kanban-column-body" data-status="' + status + '">' +
             cardsHtml +
-            '</div>';
+            '</div></div>';
     }).join('');
+
+    // Re-initialize SortableJS every time we render
+    initSortableKanban();
 }
 
 
@@ -819,6 +823,200 @@ function updateGreeting() {
 }
 
 
+// ── SortableJS (Drag & Drop) ──
+function initSortableKanban() {
+    if (typeof Sortable === 'undefined') return;
+    const columns = document.querySelectorAll('.kanban-column-body');
+    columns.forEach(col => {
+        new Sortable(col, {
+            group: 'kanban',
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            onEnd: function (evt) {
+                const itemEl = evt.item; 
+                const toCol = evt.to;
+                
+                const projectId = parseInt(itemEl.getAttribute('data-id'));
+                const newStatus = toCol.getAttribute('data-status');
+                
+                // Update project data
+                const project = projects.find(p => p.id === projectId);
+                if (project && project.status !== newStatus) {
+                    project.status = newStatus;
+                    
+                    // Add an activity feed entry
+                    activities.unshift({
+                        icon: 'sync_alt',
+                        color: 'ai-blue',
+                        text: '<strong>Dr. John</strong> moveu o projeto ' + project.subtitle + ' para <strong>' + newStatus + '</strong>',
+                        time: 'Agora mesmo'
+                    });
+                    
+                    // Refresh other views that depend on status
+                    renderProjectsTable();
+                    renderActivityFeed();
+                    animateKPIs();
+                    // Don't re-render Kanban here, let SortableJS handle the DOM, otherwise it flickers.
+                    // But we do need to update column counts
+                    updateKanbanCounts();
+                }
+            }
+        });
+    });
+}
+
+function updateKanbanCounts() {
+    const columns = document.querySelectorAll('.kanban-column');
+    columns.forEach(col => {
+        const status = col.querySelector('.kanban-column-body').getAttribute('data-status');
+        const count = projects.filter(p => p.status === status).length;
+        col.querySelector('.kanban-column-count').textContent = count;
+    });
+}
+
+
+// ── Modals & Forms ──
+function initModals() {
+    const overlay = document.querySelectorAll('.modal-overlay');
+    const closeBtns = document.querySelectorAll('[data-dismiss="modal"]');
+    
+    // Close Modals
+    const closeModal = () => overlay.forEach(m => m.classList.remove('active'));
+    
+    closeBtns.forEach(btn => btn.addEventListener('click', closeModal));
+    overlay.forEach(m => m.addEventListener('click', (e) => {
+        if(e.target === m) closeModal();
+    }));
+    
+    // Open Modals
+    const openModal = (id) => {
+        const modal = document.getElementById(id);
+        if (modal) modal.classList.add('active');
+    };
+
+    const btnNewProject = document.getElementById('btn-new-project');
+    const btnAddProject = document.getElementById('btn-add-project');
+    const btnAddResearcher = document.getElementById('btn-add-researcher');
+    const btnAddPublication = document.getElementById('btn-add-publication');
+    const btnGenerateReport = document.getElementById('btn-generate-report');
+    
+    if (btnNewProject) btnNewProject.addEventListener('click', () => {
+        populateResearcherSelect();
+        openModal('modal-new-project');
+    });
+    if (btnAddProject) btnAddProject.addEventListener('click', () => {
+        populateResearcherSelect();
+        openModal('modal-new-project');
+    });
+    if (btnAddResearcher) btnAddResearcher.addEventListener('click', () => openModal('modal-add-researcher'));
+    if (btnAddPublication) btnAddPublication.addEventListener('click', () => openModal('modal-add-publication'));
+    if (btnGenerateReport) btnGenerateReport.addEventListener('click', () => openModal('modal-generate-report'));
+    
+    // Setup Forms Submit
+    setupFormSubmits(closeModal);
+}
+
+function populateResearcherSelect() {
+    const select = document.getElementById('select-researchers');
+    if (!select) return;
+    select.innerHTML = '<option value="">Selecione...</option>' + 
+        researchers.map(r => '<option value="' + r.id + '">' + r.name + '</option>').join('');
+}
+
+function setupFormSubmits(closeModal) {
+    // 1. New Project
+    const formProject = document.getElementById('form-new-project');
+    if (formProject) formProject.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const fd = new FormData(formProject);
+        const researcher = researchers.find(r => r.id === parseInt(fd.get('researcherId')));
+        
+        projects.unshift({
+            id: projects.length + 1,
+            title: fd.get('title'),
+            subtitle: fd.get('code'),
+            researcher: researcher,
+            area: fd.get('area'),
+            progress: 0,
+            status: fd.get('status'),
+            deadline: fd.get('deadline'),
+            progressColor: 'blue'
+        });
+        
+        activities.unshift({ icon: 'add_circle', color: 'ai-emerald', text: '<strong>Dr. John</strong> criou o projeto ' + fd.get('code'), time: 'Agora mesmo' });
+        
+        formProject.reset();
+        closeModal();
+        renderProjectsTable();
+        renderKanban();
+        renderActivityFeed();
+        animateKPIs();
+        alert('Projeto salvo com sucesso!');
+    });
+
+    // 2. New Researcher
+    const formResearcher = document.getElementById('form-add-researcher');
+    if (formResearcher) formResearcher.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const fd = new FormData(formResearcher);
+        
+        researchers.push({
+            id: researchers.length + 1,
+            name: fd.get('name'),
+            initials: fd.get('initials').toUpperCase(),
+            title: fd.get('title'),
+            area: fd.get('area'),
+            projects: 0,
+            publications: 0,
+            citations: 0,
+            color: Math.floor(Math.random() * 8)
+        });
+        
+        formResearcher.reset();
+        closeModal();
+        renderResearchersFull();
+        animateKPIs();
+        alert('Pesquisador adicionado com sucesso!');
+    });
+
+    // 3. New Publication
+    const formPub = document.getElementById('form-add-publication');
+    if (formPub) formPub.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const fd = new FormData(formPub);
+        
+        publications.unshift({
+            title: fd.get('title'),
+            authors: fd.get('authors'),
+            journal: fd.get('journal'),
+            year: parseInt(fd.get('year')),
+            qualis: fd.get('qualis'),
+            citations: 0,
+            doi: fd.get('doi') || ''
+        });
+        
+        activities.unshift({ icon: 'article', color: 'ai-violet', text: '<strong>Dr. John</strong> adicionou uma nova publicação', time: 'Agora mesmo' });
+        
+        formPub.reset();
+        closeModal();
+        renderPublicationsPage();
+        renderActivityFeed();
+        animateKPIs();
+        alert('Publicação registrada!');
+    });
+
+    // 4. Generate Report
+    const formReport = document.getElementById('form-generate-report');
+    if (formReport) formReport.addEventListener('submit', (e) => {
+        e.preventDefault();
+        formReport.reset();
+        closeModal();
+        alert('Gerando PDF do relatório. O download começará em instantes (simulação).');
+    });
+}
+
+
+
 // ── Run ──
 initTheme();
 updateGreeting();
@@ -828,5 +1026,6 @@ renderActivityFeed();
 renderResearchersHighlight();
 renderNotifications();
 renderCharts();
+initModals();
 
 }); // end DOMContentLoaded
