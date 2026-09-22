@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResearchHub — Painel de Pesquisas em Fisioterapia</title>
+    <meta name="description" content="Dashboard de acompanhamento e evolução contínua de pesquisas em Fisioterapia. Visualize projetos, pesquisadores e publicações em tempo real.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <span class="material-symbols-rounded">biotech</span>
+                </div>
+                <div class="logo-text">
+                    <h1>ResearchHub</h1>
+                    <span>Fisioterapia</span>
+                </div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <span class="nav-section-title">Principal</span>
+                <a href="#" class="nav-item active" data-page="dashboard" id="nav-dashboard">
+                    <span class="material-symbols-rounded">dashboard</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" data-page="projects" id="nav-projects">
+                    <span class="material-symbols-rounded">science</span>
+                    <span>Projetos</span>
+                </a>
+                <a href="#" class="nav-item" data-page="researchers" id="nav-researchers">
+                    <span class="material-symbols-rounded">groups</span>
+                    <span>Pesquisadores</span>
+                </a>
+                <a href="#" class="nav-item" data-page="publications" id="nav-publications">
+                    <span class="material-symbols-rounded">menu_book</span>
+                    <span>Publicações</span>
+                </a>
+            </div>
+            <div class="nav-section">
+                <span class="nav-section-title">Análises</span>
+                <a href="#" class="nav-item" data-page="timeline" id="nav-timeline">
+                    <span class="material-symbols-rounded">timeline</span>
+                    <span>Linha do Tempo</span>
+                </a>
+                <a href="#" class="nav-item" data-page="reports" id="nav-reports">
+                    <span class="material-symbols-rounded">assessment</span>
+                    <span>Relatórios</span>
+                </a>
+            </div>
+            <div class="nav-section">
+                <span class="nav-section-title">Sistema</span>
+                <a href="#" class="nav-item" id="nav-settings">
+                    <span class="material-symbols-rounded">settings</span>
+                    <span>Configurações</span>
+                </a>
+            </div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="user-profile" id="user-profile-sidebar">
+                <div class="avatar avatar-sm">
+                    <span>PG</span>
+                </div>
+                <div class="user-info">
+                    <span class="user-name">Pablo Gomes</span>
+                    <span class="user-role">Administrador</span>
+                </div>
+                <span class="material-symbols-rounded">more_vert</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div class="top-bar-left">
+                <button class="btn-icon sidebar-toggle" id="sidebar-toggle">
+                    <span class="material-symbols-rounded">menu</span>
+                </button>
+                <div class="breadcrumb" id="breadcrumb">
+                    <span class="material-symbols-rounded">home</span>
+                    <span>/</span>
+                    <span class="breadcrumb-current">Dashboard</span>
+                </div>
+            </div>
+            <div class="top-bar-right">
+                <div class="search-bar" id="search-bar">
+                    <span class="material-symbols-rounded">search</span>
+                    <input type="text" placeholder="Buscar projetos, pesquisadores..." id="search-input">
+                    <kbd>Ctrl+K</kbd>
+                </div>
+                <button class="btn-icon notification-btn" id="notification-btn">
+                    <span class="material-symbols-rounded">notifications</span>
+                    <span class="notification-badge">3</span>
+                </button>
+                <div class="theme-toggle" id="theme-toggle">
+                    <span class="material-symbols-rounded">dark_mode</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Content Container -->
+        <div class="page-content" id="page-content">
+
+            <!-- ========== DASHBOARD PAGE ========== -->
+            <section class="page active" id="page-dashboard">
+                <!-- Welcome Section -->
+                <div class="welcome-section">
+                    <div class="welcome-text">
+                        <h2>Bom dia, Pablo 👋</h2>
+                        <p>Aqui está um resumo da evolução das pesquisas do centro.</p>
+                    </div>
+                    <div class="welcome-actions">
+                        <button class="btn btn-primary" id="btn-new-project">
+                            <span class="material-symbols-rounded">add</span>
+                            Novo Projeto
+                        </button>
+                        <button class="btn btn-outline" id="btn-export">
+                            <span class="material-symbols-rounded">download</span>
+                            Exportar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- KPI Cards -->
+                <div class="kpi-grid" id="kpi-grid">
+                    <div class="kpi-card" id="kpi-total-projects">
+                        <div class="kpi-icon kpi-icon-blue">
+                            <span class="material-symbols-rounded">science</span>
+                        </div>
+                        <div class="kpi-content">
+                            <span class="kpi-label">Projetos Ativos</span>
+                            <span class="kpi-value" data-target="24">0</span>
+                            <span class="kpi-trend positive">
+                                <span class="material-symbols-rounded">trending_up</span>
+                                +12% vs. semestre anterior
+                            </span>
+                        </div>
+                    </div>
+                    <div class="kpi-card" id="kpi-researchers">
+                        <div class="kpi-icon kpi-icon-emerald">
+                            <span class="material-symbols-rounded">groups</span>
+                        </div>
+                        <div class="kpi-content">
+                            <span class="kpi-label">Pesquisadores</span>
+                            <span class="kpi-value" data-target="47">0</span>
+                            <span class="kpi-trend positive">
+                                <span class="material-symbols-rounded">trending_up</span>
+                                +8% vs. semestre anterior
+                            </span>
+                        </div>
+                    </div>
+                    <div class="kpi-card" id="kpi-publications">
+                        <div class="kpi-icon kpi-icon-violet">
+                            <span class="material-symbols-rounded">menu_book</span>
+                        </div>
+                        <div class="kpi-content">
+                            <span class="kpi-label">Publicações 2026</span>
+                            <span class="kpi-value" data-target="18">0</span>
+                            <span class="kpi-trend positive">
+                                <span class="material-symbols-rounded">trending_up</span>
+                                +22% vs. ano anterior
+                            </span>
+                        </div>
+                    </div>
+                    <div class="kpi-card" id="kpi-completion">
+                        <div class="kpi-icon kpi-icon-amber">
+                            <span class="material-symbols-rounded">task_alt</span>
+                        </div>
+                        <div class="kpi-content">
+                            <span class="kpi-label">Taxa de Conclusão</span>
+                            <span class="kpi-value" data-target="87" data-suffix="%">0</span>
+                            <span class="kpi-trend positive">
+                                <span class="material-symbols-rounded">trending_up</span>
+                                +5% vs. semestre anterior
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="charts-row">
+                    <div class="chart-card chart-card-wide" id="chart-evolution-card">
+                        <div class="chart-header">
+                            <div>
+                                <h3>Evolução das Pesquisas</h3>
+                                <p>Progresso mensal dos projetos em andamento</p>
+                            </div>
+                            <div class="chart-actions">
+                                <select class="select-sm" id="evolution-period">
+                                    <option value="6m">Últimos 6 meses</option>
+                                    <option value="12m" selected>Últimos 12 meses</option>
+                                    <option value="24m">Últimos 24 meses</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="chart-evolution"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card" id="chart-areas-card">
+                        <div class="chart-header">
+                            <div>
+                                <h3>Áreas de Pesquisa</h3>
+                                <p>Distribuição por especialidade</p>
+                            </div>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="chart-areas"></canvas>
+                        </div>
+                        <div class="chart-legend" id="areas-legend"></div>
+                    </div>
+                </div>
+
+                <!-- Projects & Activity Row -->
+                <div class="content-row">
+                    <!-- Recent Projects -->
+                    <div class="content-card content-card-wide" id="recent-projects-card">
+                        <div class="content-header">
+                            <div>
+                                <h3>Projetos Recentes</h3>
+                                <p>Últimas atualizações nos projetos de pesquisa</p>
+                            </div>
+                            <a href="#" class="link-btn" data-page="projects" id="view-all-projects">
+                                Ver todos
+                                <span class="material-symbols-rounded">arrow_forward</span>
+                            </a>
+                        </div>
+                        <div class="table-container">
+                            <table class="data-table" id="projects-table">
+                                <thead>
+                                    <tr>
+                                        <th>Projeto</th>
+                                        <th>Pesquisador(a)</th>
+                                        <th>Área</th>
+                                        <th>Progresso</th>
+                                        <th>Status</th>
+                                        <th>Prazo</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="projects-tbody">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Activity Feed -->
+                    <div class="content-card" id="activity-feed-card">
+                        <div class="content-header">
+                            <div>
+                                <h3>Atividade Recente</h3>
+                                <p>Últimas movimentações</p>
+                            </div>
+                        </div>
+                        <div class="activity-list" id="activity-list">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Researchers Highlight -->
+                <div class="content-row">
+                    <div class="content-card full-width" id="researchers-highlight-card">
+                        <div class="content-header">
+                            <div>
+                                <h3>Pesquisadores em Destaque</h3>
+                                <p>Equipe com maior produtividade no período</p>
+                            </div>
+                            <a href="#" class="link-btn" data-page="researchers" id="view-all-researchers">
+                                Ver todos
+                                <span class="material-symbols-rounded">arrow_forward</span>
+                            </a>
+                        </div>
+                        <div class="researchers-grid" id="researchers-grid">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========== PROJECTS PAGE ========== -->
+            <section class="page" id="page-projects">
+                <div class="page-header">
+                    <div>
+                        <h2>Projetos de Pesquisa</h2>
+                        <p>Gerencie e acompanhe todos os projetos em andamento</p>
+                    </div>
+                    <div class="page-header-actions">
+                        <div class="filter-group">
+                            <select class="select-sm" id="filter-status">
+                                <option value="all">Todos os Status</option>
+                                <option value="Em Andamento">Em Andamento</option>
+                                <option value="Coleta de Dados">Coleta de Dados</option>
+                                <option value="Análise">Análise</option>
+                                <option value="Revisão">Revisão</option>
+                                <option value="Concluído">Concluído</option>
+                            </select>
+                            <select class="select-sm" id="filter-area">
+                                <option value="all">Todas as Áreas</option>
+                                <option value="Ortopédica">Ortopédica</option>
+                                <option value="Neurológica">Neurológica</option>
+                                <option value="Cardiorrespiratória">Cardiorrespiratória</option>
+                                <option value="Esportiva">Esportiva</option>
+                                <option value="Pediátrica">Pediátrica</option>
+                                <option value="Geriátrica">Geriátrica</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" id="btn-add-project">
+                            <span class="material-symbols-rounded">add</span>
+                            Novo Projeto
+                        </button>
+                    </div>
+                </div>
+                <div class="projects-kanban" id="projects-kanban">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
+
+            <!-- ========== RESEARCHERS PAGE ========== -->
+            <section class="page" id="page-researchers">
+                <div class="page-header">
+                    <div>
+                        <h2>Pesquisadores</h2>
+                        <p>Equipe de pesquisa do centro</p>
+                    </div>
+                    <button class="btn btn-primary" id="btn-add-researcher">
+                        <span class="material-symbols-rounded">person_add</span>
+                        Adicionar Pesquisador
+                    </button>
+                </div>
+                <div class="researchers-full-grid" id="researchers-full-grid">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
+
+            <!-- ========== PUBLICATIONS PAGE ========== -->
+            <section class="page" id="page-publications">
+                <div class="page-header">
+                    <div>
+                        <h2>Publicações</h2>
+                        <p>Artigos publicados e em processo de submissão</p>
+                    </div>
+                    <button class="btn btn-primary" id="btn-add-publication">
+                        <span class="material-symbols-rounded">post_add</span>
+                        Nova Publicação
+                    </button>
+                </div>
+                <!-- Publications Stats -->
+                <div class="pub-stats-row" id="pub-stats-row">
+                    <div class="pub-stat-card">
+                        <div class="pub-stat-icon"><span class="material-symbols-rounded">check_circle</span></div>
+                        <div class="pub-stat-value">18</div>
+                        <div class="pub-stat-label">Publicados</div>
+                    </div>
+                    <div class="pub-stat-card">
+                        <div class="pub-stat-icon reviewing"><span class="material-symbols-rounded">rate_review</span></div>
+                        <div class="pub-stat-value">7</div>
+                        <div class="pub-stat-label">Em Revisão</div>
+                    </div>
+                    <div class="pub-stat-card">
+                        <div class="pub-stat-icon draft"><span class="material-symbols-rounded">edit_note</span></div>
+                        <div class="pub-stat-value">4</div>
+                        <div class="pub-stat-label">Rascunho</div>
+                    </div>
+                    <div class="pub-stat-card">
+                        <div class="pub-stat-icon citations"><span class="material-symbols-rounded">format_quote</span></div>
+                        <div class="pub-stat-value">342</div>
+                        <div class="pub-stat-label">Citações Totais</div>
+                    </div>
+                </div>
+                <div class="charts-row">
+                    <div class="chart-card chart-card-wide">
+                        <div class="chart-header">
+                            <div>
+                                <h3>Publicações por Ano</h3>
+                                <p>Histórico de produção científica</p>
+                            </div>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="chart-publications-year"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <div>
+                                <h3>Qualis / Impacto</h3>
+                                <p>Classificação das publicações</p>
+                            </div>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="chart-qualis"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="content-card full-width">
+                    <div class="content-header">
+                        <h3>Publicações Recentes</h3>
+                    </div>
+                    <div class="publications-list" id="publications-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========== TIMELINE PAGE ========== -->
+            <section class="page" id="page-timeline">
+                <div class="page-header">
+                    <div>
+                        <h2>Linha do Tempo</h2>
+                        <p>Marcos e evolução dos projetos</p>
+                    </div>
+                </div>
+                <div class="timeline-container" id="timeline-container">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
+
+            <!-- ========== REPORTS PAGE ========== -->
+            <section class="page" id="page-reports">
+                <div class="page-header">
+                    <div>
+                        <h2>Relatórios</h2>
+                        <p>Relatórios analíticos e indicadores de desempenho</p>
+                    </div>
+                    <button class="btn btn-primary" id="btn-generate-report">
+                        <span class="material-symbols-rounded">summarize</span>
+                        Gerar Relatório
+                    </button>
+                </div>
+                <div class="reports-grid" id="reports-grid">
+                    <div class="report-card">
+                        <div class="report-icon"><span class="material-symbols-rounded">bar_chart</span></div>
+                        <h4>Relatório Semestral</h4>
+                        <p>Consolidação de resultados do 1º semestre 2026</p>
+                        <div class="report-meta">
+                            <span class="material-symbols-rounded">calendar_today</span>
+                            Gerado em 01/07/2026
+                        </div>
+                        <button class="btn btn-outline btn-sm">
+                            <span class="material-symbols-rounded">download</span>
+                            Baixar PDF
+                        </button>
+                    </div>
+                    <div class="report-card">
+                        <div class="report-icon"><span class="material-symbols-rounded">analytics</span></div>
+                        <h4>Indicadores de Produtividade</h4>
+                        <p>Análise da produtividade individual e coletiva</p>
+                        <div class="report-meta">
+                            <span class="material-symbols-rounded">calendar_today</span>
+                            Gerado em 15/08/2026
+                        </div>
+                        <button class="btn btn-outline btn-sm">
+                            <span class="material-symbols-rounded">download</span>
+                            Baixar PDF
+                        </button>
+                    </div>
+                    <div class="report-card">
+                        <div class="report-icon"><span class="material-symbols-rounded">monitoring</span></div>
+                        <h4>Evolução Anual</h4>
+                        <p>Comparativo 2024–2026 de publicações e projetos</p>
+                        <div class="report-meta">
+                            <span class="material-symbols-rounded">calendar_today</span>
+                            Gerado em 01/09/2026
+                        </div>
+                        <button class="btn btn-outline btn-sm">
+                            <span class="material-symbols-rounded">download</span>
+                            Baixar PDF
+                        </button>
+                    </div>
+                    <div class="report-card">
+                        <div class="report-icon"><span class="material-symbols-rounded">group_work</span></div>
+                        <h4>Colaborações Externas</h4>
+                        <p>Mapeamento de parcerias e redes de pesquisa</p>
+                        <div class="report-meta">
+                            <span class="material-symbols-rounded">calendar_today</span>
+                            Gerado em 10/09/2026
+                        </div>
+                        <button class="btn btn-outline btn-sm">
+                            <span class="material-symbols-rounded">download</span>
+                            Baixar PDF
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Search Modal -->
+    <div class="modal-overlay" id="search-modal">
+        <div class="search-modal-content">
+            <div class="search-modal-input">
+                <span class="material-symbols-rounded">search</span>
+                <input type="text" placeholder="Buscar projetos, pesquisadores, publicações..." id="modal-search-input" autofocus>
+                <kbd>ESC</kbd>
+            </div>
+            <div class="search-results" id="search-results">
+                <div class="search-hint">
+                    <span class="material-symbols-rounded">lightbulb</span>
+                    <p>Digite para buscar em projetos, pesquisadores e publicações</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Panel -->
+    <div class="notification-panel" id="notification-panel">
+        <div class="notification-header">
+            <h3>Notificações</h3>
+            <button class="link-btn" id="mark-all-read">Marcar todas como lidas</button>
+        </div>
+        <div class="notification-list" id="notification-list">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
